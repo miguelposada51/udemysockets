@@ -7,7 +7,7 @@ var server_1 = __importDefault(require("./classes/server"));
 var router_1 = __importDefault(require("./routes/router"));
 var body_parser_1 = __importDefault(require("body-parser"));
 var cors_1 = __importDefault(require("cors"));
-var server = new server_1.default();
+var server = server_1.default.instance;
 // bodyPArser
 server.app.use(body_parser_1.default.urlencoded({ extended: true }));
 server.app.use(body_parser_1.default.json());
