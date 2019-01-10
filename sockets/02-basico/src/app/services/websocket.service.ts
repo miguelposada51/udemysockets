@@ -4,6 +4,7 @@ import { Socket } from 'ngx-socket-io';
 @Injectable({
   providedIn: 'root'
 })
+
 export class WebsocketService {
  
  public socketStatus = false;

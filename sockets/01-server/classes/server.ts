@@ -12,13 +12,13 @@ export default class Server {
 	public app: express.Application ;
 	public port: number; 
 	public io: SocketIO.Server;
-    private httpServer!: http.Server;
+    private httpServer: http.Server;
 
 	private constructor(){
 
 	  this.app = express();
 	  this.port = SERVER_PORT;
-	  this.httpServer! = new http.Server( this.app );
+	  this.httpServer = new http.Server( this.app );
 	  this.io = socketIO( this.httpServer );
 	  this.escucharSockets();	
 
