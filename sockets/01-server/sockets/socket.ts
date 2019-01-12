@@ -11,3 +11,20 @@ export const desconectar = ( cliente: Socket ) => {
 
    });
 }
+
+export const mensaje = ( cliente: Socket ) =>{
+  
+  cliente.on('mensaje',( payload: { de: string, cuerpo: string } ) => {
+
+  	console.log('Mensaje Recibido', payload);
+
+  });
+
+}
+
+
+
+
+
+
+
