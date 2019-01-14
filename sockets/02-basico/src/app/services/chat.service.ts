@@ -6,7 +6,7 @@ import { WebsocketService } from './websocket.service';
 })
 export class ChatService {
 
-  constructor( public wsService: WebsocketService) { }
+  constructor( public wsService: WebsocketService ) { }
 
   sendMessage( mensaje: string){
    

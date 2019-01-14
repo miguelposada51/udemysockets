@@ -1,0 +1,13 @@
+<h1>
+  Mensajes
+</h1>
+<hr>
+
+
+<form (ngSubmit)="enviar()">
+	
+	<input type="text" [(ngModel)]="texto"
+     name="texto" class="form-control"
+     placeholder="Mensaje..." autofocus autocomplete="off">
+
+</form>
