@@ -31,10 +31,11 @@ var Server = /** @class */ (function () {
         configurable: true
     });
     Server.prototype.escucharSockets = function () {
+        var _this = this;
         console.log('Escuchando Conexiones - sockets');
         this.io.on('connection', function (cliente) {
             console.log('cliente conectado');
-            socket.mensaje(cliente);
+            socket.mensaje(cliente, _this.io);
             socket.desconectar(cliente);
         });
     };
