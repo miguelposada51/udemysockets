@@ -11,15 +11,25 @@ export class ChatComponent implements OnInit, OnDestroy {
 
 	texto = '';
   mensajesSubscription: Subscription ;
-
+  elemento: HTMLElement;
+  
+  mensajes: any[] = [];
 
   constructor(public chatService: ChatService) { }
 
   ngOnInit() {
-    
-    this.mensajesSubscription = this.chatService.getMessages().subscribe( msg => {
-      console.log( msg );
+
+    this.elemento = document.getElementById('chat-mensajes');
+    this.mensajesSubscription = this.chatService.getMessages().subscribe( msg => {    
+      this.mensajes.push( msg );
+
+      setTimeout(() =>{
+        this.elemento.scrollTop = this.elemento.scrollHeight;
+      }, 50);
+
     });
+
+    
 
   
   }
@@ -31,7 +41,10 @@ export class ChatComponent implements OnInit, OnDestroy {
   }
    
    enviar(){
-    console.log( this.texto );
+    
+    if( this.texto.trim().length === 0 ){
+      return;
+    }
 
     this.chatService.sendMessage( this.texto );
     this.texto = '';
