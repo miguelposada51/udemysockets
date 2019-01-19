@@ -27,18 +27,14 @@ export class ChatComponent implements OnInit, OnDestroy {
         this.elemento.scrollTop = this.elemento.scrollHeight;
       }, 50);
 
-    });
-
-    
-
-  
+    });  
   }
 
-  ngOnDestroy() {
+   ngOnDestroy() {
     
-   this.mensajesSubscription.unsubscribe();
+    this.mensajesSubscription.unsubscribe();
   
-  }
+   }
    
    enviar(){
     
@@ -48,4 +44,6 @@ export class ChatComponent implements OnInit, OnDestroy {
 
     this.chatService.sendMessage( this.texto );
     this.texto = '';
+   }
+   
 }
