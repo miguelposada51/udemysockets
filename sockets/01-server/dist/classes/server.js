@@ -34,9 +34,12 @@ var Server = /** @class */ (function () {
         var _this = this;
         console.log('Escuchando Conexiones - sockets');
         this.io.on('connection', function (cliente) {
-            console.log('cliente conectado');
+            //conectar cliente	  	
+            socket.conectarCliente(cliente);
             socket.mensaje(cliente, _this.io);
             socket.desconectar(cliente);
+            // configurar usuario
+            socket.configurarUsuario(cliente);
         });
     };
     Server.prototype.start = function (callback) {

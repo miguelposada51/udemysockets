@@ -18,7 +18,8 @@ export class LoginComponent implements OnInit {
   }
  
  ingresar(){
-  this.wsService.loginWS( this.nombre );	
+  this.wsService.loginWS( this.nombre );
+  //this.nombre = '';	
  }
 
 }
