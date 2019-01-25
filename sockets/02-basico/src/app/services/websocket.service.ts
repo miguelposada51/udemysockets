@@ -9,9 +9,10 @@ import { Usuario } from '../classes/usuario';
 export class WebsocketService {
  
  public socketStatus = false;
- public usuario: Usuario
+ public usuario: Usuario = null;
 
   constructor( private socket : Socket) {
+   this.cargarStorage(); 
    this.checkStatus();
   }
 
@@ -39,13 +40,35 @@ export class WebsocketService {
   } 
 
   loginWS( nombre: string ) {
-    console.log('configurando', nombre );
-    //this.socket.emit( 'configurar-usuario', { nombre }, ( resp) => {
-     this.emit('configurar-usuario', { nombre }, resp => {
-       console.log(resp);
-     });
-     
+
+    return new Promise( (resolve, reject) => { 
    
+     this.emit('configurar-usuario', { nombre }, resp => {
+
+       this.usuario = new Usuario( nombre );
+       this.guardarStorage();
+       resolve();
+     });
+
+    });  
+  }
+
+  guardarStorage(){
+   localStorage.setItem( 'usuario', JSON.stringify( this.usuario ) );
+  }
+
+
+  getUSuario(){
+    return this.usuario;
+  }
+
+
+
+  cargarStorage(){
+   if( localStorage.getItem( 'usuario' )){
+     this.usuario = JSON.parse( localStorage.getItem('usuario') );
+   } 
+
   }
 
 }
