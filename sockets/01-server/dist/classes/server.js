@@ -36,10 +36,14 @@ var Server = /** @class */ (function () {
         this.io.on('connection', function (cliente) {
             //conectar cliente	  	
             socket.conectarCliente(cliente);
+            // mensajes
             socket.mensaje(cliente, _this.io);
-            socket.desconectar(cliente);
+            //desconectar
+            socket.desconectar(cliente, _this.io);
             // configurar usuario
-            socket.configurarUsuario(cliente);
+            socket.configurarUsuario(cliente, _this.io);
+            // cargar lista inicial
+            socket.listaUsuConect(cliente, _this.io);
         });
     };
     Server.prototype.start = function (callback) {
