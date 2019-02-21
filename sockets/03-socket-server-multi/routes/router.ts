@@ -4,10 +4,13 @@ import  {Router, Request, Response} from 'express';
 import   Server  from '../classes/server';
 import  { usuariosConectados } from '../sockets/socket';
 import  { GraficaData } from '../classes/grafica';
+import  { GraficaEncuestaData } from '../classes/encuesta';
 
 const router = Router();
 
 const grafica = new GraficaData();
+
+const encuesta = new GraficaEncuestaData();
 
 router.get('/grafica',( req:Request, res:Response ) =>{
     
@@ -31,11 +34,32 @@ router.post('/grafica',( req:Request, res:Response ) =>{
 })
 
 
+router.post('/encuesta',( req:Request, res:Response ) =>{
+        
+    const opcion = req.body.opcion;
+    const unidades = Number( req.body.unidades);
+
+    encuesta.incrementarValor( opcion, unidades );
+    
+    const server = Server.instance;
+    server.io.emit('cambio-encuesta', encuesta.getDataGraficaEncuesta() );
+   
+    res.json( encuesta.getDataGraficaEncuesta() );
+
+})
+
+router.get('/encuesta',( req:Request, res:Response ) =>{
+    
+    res.json( encuesta.getDataGraficaEncuesta() );
+
+})
+
+
 router.get('/mensajes',( req:Request, res:Response ) =>{
 
     res.json({
      ok: true,
-     mensaje: 'Hola soy luci!!'
+     mensaje: 'Hola soy luci y emma!!'
     });
 
 })
