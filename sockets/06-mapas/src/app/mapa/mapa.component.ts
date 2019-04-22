@@ -36,14 +36,41 @@ export class MapaComponent implements OnInit {
   }
 
   escucharSockets(){
+
   		// marcador- nuevo
   		this.WsService.listen('marcador-nuevo')
   		 .subscribe( ( marcador: Lugar ) =>{
   		 	this.agregarMarcador( marcador );
   		 });
+
   		// marcador-mover
+         this.WsService.listen('mover-marcador')
+       .subscribe( ( marcador: Lugar ) =>{
+                  
+          for ( let i in this.marcadores ){
+           if ( this.marcadores[i].getTitle() === marcador.id ){
+              const latLng = new google.maps.LatLng( marcador.lat, marcador.lng );
+              this.marcadores[i].setPosition( latLng );
+              break;
+           }
+          } 
+
+       });
+
+
 
   		//marcaodor-borrar
+        this.WsService.listen('borrar-marcador')
+       .subscribe( ( id: string ) =>{
+         
+         for ( const i in this.marcadores ) {
+           if ( this.marcadores[i].getTitle() === id){
+             this.marcadores[i].setMap( null );
+             break;
+           }
+         }
+
+       });
 
   	}
 
@@ -84,13 +111,13 @@ export class MapaComponent implements OnInit {
 
   agregarMarcador( marcador: Lugar ){
    const latLng = new google.maps.LatLng( marcador.lat, marcador.lng );
-
+  
    const marker = new google.maps.Marker({  
- 	map: this.map,
- 	animation: google.maps.Animation.DROP,
- 	position: latLng,
- 	draggable: true,
- 	title: marcador.id 
+   	map: this.map,
+   	animation: google.maps.Animation.DROP,
+   	position: latLng,
+   	draggable: true,
+   	title: marcador.id 
 
    });
 
@@ -113,6 +140,9 @@ export class MapaComponent implements OnInit {
    google.maps.event.addDomListener( marker, 'dblclick', (coors) =>{
    	marker.setMap( null );
    	// disparar el evento de socket para borrar el marcador
+     
+     this.WsService.emit('borrar-marcador', marker.getTitle() );     
+
    } );
 
    google.maps.event.addDomListener( marker, 'drag', (coors) =>{
@@ -123,6 +153,8 @@ export class MapaComponent implements OnInit {
    	  nombre: marcador.nombre,	
    	  id: marker.getTitle()
    	};
+
+     this.WsService.emit('mover-marcador', nuevoMarcador );  
 
    	console.log( nuevoMarcador );
    	//disparar un evento de socket para mover el marcador

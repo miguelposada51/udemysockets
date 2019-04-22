@@ -5,8 +5,47 @@ import   Server  from '../classes/server';
 import  { usuariosConectados } from '../sockets/socket';
 import  { GraficaData } from '../classes/grafica';
 import  { GraficaEncuestaData } from '../classes/encuesta';
+import  { Mapa } from '../classes/mapa';
+import  { Colas } from '../classes/colas';
+
 
 const router = Router();
+
+const cola = new Colas();
+
+export const mapa = new Mapa();
+const lugares = [
+  {
+    id: '1',
+    nombre: 'Villa Maria',
+    lat: 5.0455555555556,
+    lng: -75.515277777778
+  },
+  {
+    id: '2',
+    nombre: 'Chinchina',
+    lat: 4.9805555555556,
+    lng: -75.6075
+  },
+  {
+     id: '3',
+    nombre: 'Neira',
+    lat: 5.1663888888889,
+    lng: -75.518888888889
+  }
+];
+
+mapa.marcadores.push( ...lugares );
+
+//GET - todos los marcadores
+
+router.get('/mapa',( req:Request, res:Response ) =>{
+    
+    res.json( mapa.getMarcadores() );
+
+})
+
+
 
 const grafica = new GraficaData();
 
@@ -147,6 +186,22 @@ router.get('/usuarios/detalle',( req: Request , res:Response ) =>{
          ok: true,
          clientes: usuariosConectados.getLista()
         });
+})
+
+
+router.get('/colas',( req:Request, res:Response ) =>{
+
+    //const server = Server.instance;
+    //server.io.emit('asignar-turno', cola.imprimir() );
+   
+
+    res.json( cola.obtenerPrimeroCola() ); 
+
+    /*
+    res.json({     
+     cuerpo: cola.size()       
+    }); */
+
 })
 
 export default router;

@@ -34,6 +34,17 @@ export default class Server {
 
 	 this.io.on('connection', cliente =>{
 
+	 	//mapa
+	 	//agregar marcador
+	 	socket.marcadorNuevo( cliente );
+
+	 	//eliminar marcador
+	 	socket.eliminarMarcador( cliente );
+
+	 	//mover marcador
+	 	socket.moverMarcador( cliente );
+
+
 	 	//conectar cliente	  	
 	 	socket.conectarCliente( cliente);
 
@@ -48,6 +59,10 @@ export default class Server {
 
 	  	// cargar lista inicial
 	  	socket.listaUsuConect( cliente, this.io );
+
+	  	// cargar todos los elementos de una cola
+	  	socket.generarSiguienteTurno( cliente, this.io  );
+
 
 	 });
 	}
