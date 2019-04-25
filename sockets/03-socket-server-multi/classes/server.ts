@@ -63,6 +63,7 @@ export default class Server {
 	  	// cargar todos los elementos de una cola
 	  	socket.generarSiguienteTurno( cliente, this.io  );
 
+	  	socket.cargarTurnosActuales( cliente, this.io );
 
 	 });
 	}

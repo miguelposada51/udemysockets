@@ -11,7 +11,7 @@ import  { Colas } from '../classes/colas';
 
 const router = Router();
 
-const cola = new Colas();
+export const cola = new Colas();
 
 export const mapa = new Mapa();
 const lugares = [
@@ -195,12 +195,12 @@ router.get('/colas',( req:Request, res:Response ) =>{
     //server.io.emit('asignar-turno', cola.imprimir() );
    
 
-    res.json( cola.obtenerPrimeroCola() ); 
+    //res.json( cola.obtenerPrimeroCola() ); 
 
-    /*
+    
     res.json({     
-     cuerpo: cola.size()       
-    }); */
+     data: cola.obtenerPrimeroCola()       
+    }); 
 
 })
 

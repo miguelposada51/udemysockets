@@ -125,6 +125,16 @@ export const generarSiguienteTurno = ( cliente: Socket, io: SocketIO.Server ) =>
 
 }
 
+export const cargarTurnosActuales = ( cliente: Socket, io: SocketIO.Server ) => {  
+
+  cliente.on( 'cargar-turnos', () => {
+
+   io.emit('valorTurno-actual', ColasTurnos.obtenerPrimeroCola() );
+
+  });
+
+}
+
 
 
 
