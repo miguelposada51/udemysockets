@@ -5,15 +5,17 @@ import   Server  from '../classes/server';
 import  { usuariosConectados } from '../sockets/socket';
 import  { GraficaData } from '../classes/grafica';
 import  { GraficaEncuestaData } from '../classes/encuesta';
-import  { Mapa } from '../classes/mapa';
-import  { Colas } from '../classes/colas';
-
+// import  { Mapa } from '../classes/mapa';
+// import  { Colas } from '../classes/colas';
+var MongoClient = require('mongodb').MongoClient;
+var url = "mongodb://localhost:27017/";
+const assert = require('assert');
 
 const router = Router();
 
-export const cola = new Colas();
+// export const cola = new Colas();
 
-export const mapa = new Mapa();
+// export const mapa = new Mapa();
 const lugares = [
   {
     id: '1',
@@ -35,13 +37,37 @@ const lugares = [
   }
 ];
 
-mapa.marcadores.push( ...lugares );
+// mapa.marcadores.push( ...lugares );
 
 //GET - todos los marcadores
 
 router.get('/mapa',( req:Request, res:Response ) =>{
     
-    res.json( mapa.getMarcadores() );
+    // res.json( mapa.getMarcadores() );
+
+})
+
+
+
+router.get('/usuariosdb',( req:Request, res:Response ) =>{
+  MongoClient.connect(url, function(err, db) {
+    if (err) throw err;
+    var dbo = db.db("amigosecreto");
+    dbo.collection("participantes").findOne({}, function(err, result) {
+      if (err) throw err;
+      console.log(result.name);
+      res.json( ´{"msg" : result.nombre});
+      db.close();
+    });
+    // dbo.collection("participantes").find({}).toArray(function(err, docs) {
+    //   assert.equal(err, null);
+    //   console.log("Found the following records");
+    //   console.log(docs);
+    //   res.json( {"msg":docs} );
+    // });
+  });
+   
+  
 
 })
 
@@ -199,7 +225,7 @@ router.get('/colas',( req:Request, res:Response ) =>{
 
     
     res.json({     
-     data: cola.obtenerPrimeroCola()       
+    //  data: cola.obtenerPrimeroCola()       
     }); 
 
 })
