@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { Socket } from 'ngx-socket-io';
 import { Usuario } from '../classes/usuario';
 import { Router } from '@angular/router';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +14,7 @@ export class WebsocketService {
  public socketStatus = false;
  public usuario: Usuario = null;
 
-  constructor( private socket : Socket, private Router: Router) {
+  constructor( private socket : Socket, private Router: Router, private http: HttpClient) {
    this.cargarStorage(); 
    this.checkStatus();
   }
@@ -40,6 +42,10 @@ export class WebsocketService {
   listen( evento: string){
    return  this.socket.fromEvent( evento);
   } 
+
+  LoginyAmigoSecreto(UserAmigoSec: Object): Observable<any>{
+    return this.http.post('http://localhost:5000/usuariosdb', UserAmigoSec);
+   }
 
   loginWS( nombre: string ) {
 

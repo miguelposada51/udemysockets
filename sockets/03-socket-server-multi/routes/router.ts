@@ -49,27 +49,66 @@ router.get('/mapa',( req:Request, res:Response ) =>{
 
 
 
-router.get('/usuariosdb',( req:Request, res:Response ) =>{
+router.post('/usuariosdb',( req:Request, res:Response ) =>{
   MongoClient.connect(url, function(err, db) {
     if (err) throw err;
-    var dbo = db.db("amigosecreto");
-    dbo.collection("participantes").findOne({}, function(err, result) {
-      if (err) throw err;
-      console.log(result.name);
-      res.json( ´{"msg" : result.nombre});
-      db.close();
-    });
-    // dbo.collection("participantes").find({}).toArray(function(err, docs) {
-    //   assert.equal(err, null);
-    //   console.log("Found the following records");
-    //   console.log(docs);
-    //   res.json( {"msg":docs} );
-    // });
-  });
-   
-  
+    var dbo = db.db("admin");
+    const UserAmigoSec =  req.body.UserAmigoSec;
+    //se busca si existe el codigo de login
+    dbo.collection("participantes").findOne({ "num": ""+ UserAmigoSec +"" }, function(err, result) {
+      try 
+      { //se asigna  sino tiene amigo secreto aun
+        if(result.asignado === ''){
+          const AmigoSecreto = AsignarAmigo(result.grupo, result.id);
+          res.json( {"msg" : result.nombre, "grupo" : result.grupo, "AmigoSecreto":AmigoSecreto.nombre});
+          //actualizo el campo asignado con el amigo secreto calculado
+          dbo.collection("participantes").update(
+            { "id": ""+ UserAmigoSec +"" },
+            { $set: { asignado: AmigoSecreto.id } }
+          );
+        }else{// se busca si ya lo tiene asignado para mostrarlo en pantalla
+          dbo.collection("participantes").findOne({"num": ""+ result.asignado +"" }, function(err, resAsig) { 
+           try{
+             res.json( {"msg" : result.nombre, "AmigoSecreto":resAsig.nombre});
+           }catch{
+            res.json( {"msg" : "Error no se encontro amigo secreto asignado"}); 
+           }
+          });
+        }
+        db.close();
+      }catch {
+        res.json( {"msg" : "Error no se encontro usuario"});        
+      }
+    });  
+  }); 
 
 })
+
+function AsignarAmigo(grupo : any, usuParaAsig : any){
+  MongoClient.connect(url, function(err, db) {
+    if (err) throw err;
+    var dbo = db.db("admin");   
+    dbo.collection("participantes").findOneAndUpdate(
+      {
+        $and: 
+        [
+          { 'num' :  { $not: {  usuParaAsig   } } },
+          { "elegidopor" : {  } }
+        ]
+      }, {$set : { "elegidopor" : usuParaAsig }}, function(err, result) {
+          try 
+          {
+            return result;
+          }catch {
+            return err;  
+          }   
+         }
+        ); 
+        db.close();
+  });
+}
+ 
+
 
 
 

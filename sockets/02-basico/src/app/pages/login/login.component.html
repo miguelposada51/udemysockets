@@ -4,7 +4,8 @@
 <div class="row justify-content-center">
  <div class="col-9">
    <form class="p-4" (ngSubmit)="ingresar()">
-   	
+           
+     <div class="alert alert-danger" role="alert" *ngIf=(erroLogin)>Error login: Usuario no existe </div>   
     <input type="text" 
            [(ngModel)]="nombre"
            name="nombre"
