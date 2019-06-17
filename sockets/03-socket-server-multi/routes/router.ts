@@ -101,20 +101,26 @@ function AsignarAmigo(grupo : any, usuParaAsig : any){
         ]
       }
       ,
-       {$set : { "elegidopor" : + usuParaAsig +"" }},{New:true}
+       {$set : { "elegidopor" : ""+ usuParaAsig +"" }},{New:true}
        , (err: any, doc: any) => {
         if (err) {
             console.log("Algo salio mal mientras de actualiza!" + err);
         }    
-        console.log("Por fin el amigo es "+ Object.keys(doc) +" %% "+ doc.value.nombre + " -_- "+ doc.value.elegidopor);
+        console.log("Por fin el amigo es  %% "+ doc.value.nombre + " -_- elegido por "+ usuParaAsig);
           //actualizo el campo asignado con el amigo secreto calculado
-        // dbo.collection("participantes").updateOne(          
-        //   { "id" : { $eq: ""+ usuParaAsig +"" } },
-        //   { $set: { "asignado" : ""+ doc.value.id +""  } }
-        // );
+        dbo.collection("participantes").updateOne({ "id" : { $eq: ""+ usuParaAsig +"" } },
+            { $set: { "asignado" : ""+ doc.value.id +""  } }, function(err:any, result: any ) {
+              try{
+                console.debug(Object.keys(result.value) +"actualizo a "+result.value.nombre+" tiene asignado el: "+result.value.asignado );  
+              }catch{
+                console.log("el id para act "+doc.value.id);
+                console.log("es este error al actualizar el asignado "+err);
+              }
+            }
+        );
        }
         ); 
-        db.close();
+        // db.close();
   });
 }
  
