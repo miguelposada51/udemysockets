@@ -50,27 +50,26 @@ router.get('/mapa',( req:Request, res:Response ) =>{
 
 
 router.post('/usuariosdb',( req:Request, res:Response ) =>{
-  MongoClient.connect(url, function(err, db) {
+  MongoClient.connect(url, function(err: any, db: any) {
     if (err) throw err;
     var dbo = db.db("admin");
     const UserAmigoSec =  req.body.UserAmigoSec;
     //se busca si existe el codigo de login
-    dbo.collection("participantes").findOne({ "num": ""+ UserAmigoSec +"" }, function(err, result) {
+    dbo.collection("participantes").findOne({ "num": ""+ UserAmigoSec +"" }, function(err: any, result: any) {
       try 
       { //se asigna  sino tiene amigo secreto aun
-        if(result.asignado === ''){
-          const AmigoSecreto = AsignarAmigo(result.grupo, result.id);
-          res.json( {"msg" : result.nombre, "grupo" : result.grupo, "AmigoSecreto":AmigoSecreto.nombre});
-          //actualizo el campo asignado con el amigo secreto calculado
-          dbo.collection("participantes").update(
-            { "id": ""+ UserAmigoSec +"" },
-            { $set: { asignado: AmigoSecreto.id } }
-          );
+        if(result.asignado === ""){
+          AsignarAmigo(result.grupo, result.id);
+          res.json( {"msg" : result.nombre, "grupo" : result.grupo});
+          console.log(" y devolvio pa " +result.nombre +" del grupo  "+result.grupo);
+        
         }else{// se busca si ya lo tiene asignado para mostrarlo en pantalla
-          dbo.collection("participantes").findOne({"num": ""+ result.asignado +"" }, function(err, resAsig) { 
+          dbo.collection("participantes").findOne({"id": ""+ result.asignado +"" }, function(err: any, resAsig: any) { 
            try{
+             console.log("ud ya tiene a " + resAsig.nombre  );
              res.json( {"msg" : result.nombre, "AmigoSecreto":resAsig.nombre});
            }catch{
+             console.log("Error no se encontro amigo secreto asignado " + err );
             res.json( {"msg" : "Error no se encontro amigo secreto asignado"}); 
            }
           });
@@ -84,25 +83,36 @@ router.post('/usuariosdb',( req:Request, res:Response ) =>{
 
 })
 
+//buscar amigos secretos disponibles
 function AsignarAmigo(grupo : any, usuParaAsig : any){
-  MongoClient.connect(url, function(err, db) {
+  console.log("llega al metodo el grupo " + grupo + " - y es - " +usuParaAsig );
+
+  MongoClient.connect(url, function(err: any, db: any) {
     if (err) throw err;
     var dbo = db.db("admin");   
-    dbo.collection("participantes").findOneAndUpdate(
+    // dbo.collection("participantes").findOneAndUpdate(
+      dbo.collection("participantes").findOneAndUpdate(
       {
         $and: 
         [
-          { 'num' :  { $not: {  usuParaAsig   } } },
-          { "elegidopor" : {  } }
+          { 'id' :  { $not: { $eq: ""+ usuParaAsig +"" } } },
+          { 'grupo' :  { $not: {  $eq: ""+ grupo +""   } } },
+          { "elegidopor" : { $eq: "" } }
         ]
-      }, {$set : { "elegidopor" : usuParaAsig }}, function(err, result) {
-          try 
-          {
-            return result;
-          }catch {
-            return err;  
-          }   
-         }
+      }
+      ,
+       {$set : { "elegidopor" : + usuParaAsig +"" }},{New:true}
+       , (err: any, doc: any) => {
+        if (err) {
+            console.log("Algo salio mal mientras de actualiza!" + err);
+        }    
+        console.log("Por fin el amigo es "+ Object.keys(doc) +" %% "+ doc.value.nombre + " -_- "+ doc.value.elegidopor);
+          //actualizo el campo asignado con el amigo secreto calculado
+        // dbo.collection("participantes").updateOne(          
+        //   { "id" : { $eq: ""+ usuParaAsig +"" } },
+        //   { $set: { "asignado" : ""+ doc.value.id +""  } }
+        // );
+       }
         ); 
         db.close();
   });

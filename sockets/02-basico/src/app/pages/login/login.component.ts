@@ -26,7 +26,7 @@ export class LoginComponent implements OnInit {
   this.wsService.LoginyAmigoSecreto({"UserAmigoSec": ""+ this.nombre +"" }).subscribe(data => {
     if (data){  
      
-      console.log("devolvi la data " + data.msg + " - "+ data.grupo +" y el amigo "+ data.AmigoSecreto.nombre);
+      console.log("devolvi la data " + data.msg + " - "+ data.grupo);
       if(data.msg === "Error no se encontro usuario"){
         this.router.navigateByUrl('/');
         this.erroLogin = true;
