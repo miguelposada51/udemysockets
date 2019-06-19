@@ -59,22 +59,93 @@ router.post('/usuariosdb',( req:Request, res:Response ) =>{
       try 
       { //se asigna  sino tiene amigo secreto aun
         if(result.asignado === ""){
-          AsignarAmigo(result.grupo, result.id);
-          res.json( {"msg" : result.nombre, "grupo" : result.grupo});
-          console.log(" y devolvio pa " +result.nombre +" del grupo  "+result.grupo);
-        
-        }else{// se busca si ya lo tiene asignado para mostrarlo en pantalla
+        //  var amigosignado =  AsignarAmigo(result.grupo, result.id);
+
+        dbo.collection("participantes").findOneAndUpdate(
+          {
+            $and: 
+            [
+              { 'id' :  { $not: { $eq: ""+ result.id +"" } } },
+              { 'grupo' :  { $not: {  $eq: ""+ result.grupo +""   } } },
+              { "elegidopor" : { $eq: "" } }
+            ]
+          },{$set : { "elegidopor" : ""+ result.id +"" }},{New:true},(err: any, doc: any) => {
+            if (err) {
+                console.log("Algo salio mal mientras de actualiza!" + err);
+            }    
+            console.log("Por fin el amigo es  %% "+ doc.value.nombre + " con id : "+ doc.value.id+ " -_- elegido por "+ UserAmigoSec);
+              //actualizo el campo asignado de UserAmigoSec con el amigo secreto calculado
+          
+              dbo.collection("participantes").updateOne(
+                {
+                  $and: 
+                  [
+                    { 'id' :   { $eq: ""+ result.id +"" } },
+                    { 'grupo' :  { $eq: ""+ result.grupo +"" } }
+                  ]
+                },
+                  { $set: { "asignado" : ""+ doc.value.id +""  } }, (err:any, resultAsig: any ) =>
+                  {
+                    if(!err){
+                      // console.log(Object.keys(resultAsig.value) +"actualizo a "+resultAsig.value.nombre+" tiene asignado el: "+resultAsig.value.asignado );  
+                      console.log(" y devolvio pa " +result.nombre +" del grupo  "+result.grupo + " tiene a " +doc.value.nombre);
+                      res.json( {"msg" : result.nombre, "grupo" : result.grupo, "elAmigoEs" : doc.value.nombre});
+                    }else{
+                      console.log("el id para actuali el asignado "+result.id);
+                      console.log("es este error al actualizar el asignado "+err);
+                    }
+                  }
+              );
+           
+            // return doc.value.nombre;
+          }
+          );        
+        }else if(result.asignado != ""){// se busca si ya lo tiene asignado para mostrarlo en pantalla
           dbo.collection("participantes").findOne({"id": ""+ result.asignado +"" }, function(err: any, resAsig: any) { 
            try{
              console.log("ud ya tiene a " + resAsig.nombre  );
-             res.json( {"msg" : result.nombre, "AmigoSecreto":resAsig.nombre});
+             res.json( {"msg" : result.nombre, "grupo" : result.grupo, "elAmigoEs":resAsig.nombre});
            }catch{
              console.log("Error no se encontro amigo secreto asignado " + err );
-            res.json( {"msg" : "Error no se encontro amigo secreto asignado"}); 
+            res.json( {"msg" : "Error no se encontro amigo secreto asignado" , "grupo" : "error grupo", "elAmigoEs":"ninguno"}); 
            }
-          });
+          });//se busca el que este diponible en el mismo grupo(caso hipotetico)
+        }else{
+          dbo.collection("participantes").findOneAndUpdate(
+            {
+              $and: 
+              [
+                { 'id' :  { $not: { $eq: ""+ result.id +"" } } },                
+                { "elegidopor" : { $eq: "" } }
+              ]
+            }
+            ,
+             {$set : { "elegidopor" : ""+ result.id +"" }},{New:true}
+             , (err: any, doc: any) => {
+              if (err) {
+                  console.log("Algo salio mal mientras de actualiza en el mismo grupo!" + err);
+              }
+                console.log("Por fin el amigo del mismo grupo es  ## "+ doc.value.nombre + " -_- elegido por "+ UserAmigoSec);
+                
+                //actualizo el campo asignado de UserAmigoSec con el amigo secreto calculado
+             
+              dbo.collection("participantes").updateOne({ "id" : { $eq: ""+ result.id +"" } },
+                  { $set: { "asignado" : ""+ doc.value.id +""  } }, function(err:any, resultAsig: any ) {
+                    try{
+                      // console.log(Object.keys(resultAsig.value) +"actualizo a "+resultAsig.value.nombre+" tiene asignado el: "+resultAsig.value.asignado );  
+                      console.log(" y devolvio pa " +result.nombre +" del grupo  "+result.grupo + " tiene a " +doc.value.nombre);
+                      res.json( {"msg" : result.nombre, "grupo" : result.grupo, "elAmigoEs" : doc.value.nombre});
+                    }catch{
+                      console.log("el id para act "+doc.value.id);
+                      console.log("es este error al actualizar el asignado "+err);
+                    }
+                  }
+              );
+              // return doc.value.nombre;
+            }
+            );  
         }
-        db.close();
+        //  db.close();
       }catch {
         res.json( {"msg" : "Error no se encontro usuario"});        
       }
@@ -82,49 +153,6 @@ router.post('/usuariosdb',( req:Request, res:Response ) =>{
   }); 
 
 })
-
-//buscar amigos secretos disponibles
-function AsignarAmigo(grupo : any, usuParaAsig : any){
-  console.log("llega al metodo el grupo " + grupo + " - y es - " +usuParaAsig );
-
-  MongoClient.connect(url, function(err: any, db: any) {
-    if (err) throw err;
-    var dbo = db.db("admin");   
-    // dbo.collection("participantes").findOneAndUpdate(
-      dbo.collection("participantes").findOneAndUpdate(
-      {
-        $and: 
-        [
-          { 'id' :  { $not: { $eq: ""+ usuParaAsig +"" } } },
-          { 'grupo' :  { $not: {  $eq: ""+ grupo +""   } } },
-          { "elegidopor" : { $eq: "" } }
-        ]
-      }
-      ,
-       {$set : { "elegidopor" : ""+ usuParaAsig +"" }},{New:true}
-       , (err: any, doc: any) => {
-        if (err) {
-            console.log("Algo salio mal mientras de actualiza!" + err);
-        }    
-        console.log("Por fin el amigo es  %% "+ doc.value.nombre + " -_- elegido por "+ usuParaAsig);
-          //actualizo el campo asignado con el amigo secreto calculado
-        dbo.collection("participantes").updateOne({ "id" : { $eq: ""+ usuParaAsig +"" } },
-            { $set: { "asignado" : ""+ doc.value.id +""  } }, function(err:any, result: any ) {
-              try{
-                console.debug(Object.keys(result.value) +"actualizo a "+result.value.nombre+" tiene asignado el: "+result.value.asignado );  
-              }catch{
-                console.log("el id para act "+doc.value.id);
-                console.log("es este error al actualizar el asignado "+err);
-              }
-            }
-        );
-       }
-        ); 
-        // db.close();
-  });
-}
- 
-
 
 
 

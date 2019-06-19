@@ -13,6 +13,7 @@ export class WebsocketService {
  
  public socketStatus = false;
  public usuario: Usuario = null;
+ public usuarioAmigo: any = null;
 
   constructor( private socket : Socket, private Router: Router, private http: HttpClient) {
    this.cargarStorage(); 
@@ -47,13 +48,15 @@ export class WebsocketService {
     return this.http.post('http://localhost:5000/usuariosdb', UserAmigoSec);
    }
 
-  loginWS( nombre: string ) {
+  loginWS( nombre: string, amigoSecreto: string  ) {
 
     return new Promise( (resolve, reject) => { 
    
      this.emit('configurar-usuario', { nombre }, resp => {
 
        this.usuario = new Usuario( nombre );
+       if(!amigoSecreto){amigoSecreto="debes loguearte nuevamente"}
+       this.usuarioAmigo = " Que se dice: "+this.usuario.nombre + " Tienes Asignado a:  " + amigoSecreto
        this.guardarStorage();
        resolve();
      });
@@ -89,7 +92,7 @@ export class WebsocketService {
   cargarStorage(){
    if( localStorage.getItem( 'usuario' )){
      this.usuario = JSON.parse( localStorage.getItem('usuario') );
-     this.loginWS( this.usuario.nombre );
+     this.loginWS( this.usuario.nombre, this.usuarioAmigo );
    } 
 
   }

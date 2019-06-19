@@ -26,12 +26,12 @@ export class LoginComponent implements OnInit {
   this.wsService.LoginyAmigoSecreto({"UserAmigoSec": ""+ this.nombre +"" }).subscribe(data => {
     if (data){  
      
-      console.log("devolvi la data " + data.msg + " - "+ data.grupo);
+      console.log("el usuario " + data.msg + " - del grupo  "+ data.grupo+" tiene a "+data.elAmigoEs);
       if(data.msg === "Error no se encontro usuario"){
         this.router.navigateByUrl('/');
         this.erroLogin = true;
       }else{ 
-        this.wsService.loginWS( this.nombre )
+        this.wsService.loginWS( data.msg,data.elAmigoEs )
         .then(() => {
         this.router.navigateByUrl('/mensajes');
     });
